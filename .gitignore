@@ -1,0 +1,28 @@
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# raw dataset (regenerate from官方 demo set; not part of submission)
+data/
+*.csv
+
+# submission zip outputs
+时间序列-*.zip
+
+# legacy V1 outputs (we ship V2 only)
+checkpoints/
+results/
+
+# log files
+*.log
+logs/
+
+# untracked V2 ckpts that were trimmed (only the 22 used ones live in git)
+# (no further whitelist needed — the 22 we keep are explicitly committed)

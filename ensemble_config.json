@@ -1,0 +1,49 @@
+{
+  "96": {
+    "strategy": "greedy",
+    "models": [
+      "itransformer_strong_s1234",
+      "tsmixer_s1234",
+      "itransformer_strong_s42",
+      "patchtst_strong_s2026",
+      "tsmixer_s42",
+      "itransformer_strong_s2026"
+    ],
+    "val_mse": 0.0030024470761418343
+  },
+  "192": {
+    "strategy": "greedy",
+    "models": [
+      "itransformer_strong_s42",
+      "tsmixer_s1234",
+      "patchtst_strong_s1234",
+      "itransformer_strong_s2026",
+      "tsmixer_s2026",
+      "itransformer_strong_s1234",
+      "patchtst_strong_s42",
+      "timemixer_s1234"
+    ],
+    "val_mse": 0.0035437140613794327
+  },
+  "336": {
+    "strategy": "greedy",
+    "models": [
+      "itransformer_strong_s42",
+      "timemixer_s1234",
+      "patchtst_strong_s2026",
+      "itransformer_strong_s1234",
+      "tsmixer_s2026"
+    ],
+    "val_mse": 0.003822699887678027
+  },
+  "720": {
+    "strategy": "greedy",
+    "models": [
+      "itransformer_strong_s42",
+      "timemixer_s1234",
+      "itransformer_strong_s1234"
+    ],
+    "val_mse": 0.004158173222094774
+  },
+  "avg_val_mse": 0.003631758561823517
+}
