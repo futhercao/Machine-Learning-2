@@ -1,4 +1,4 @@
-# 多变量时间序列预测（赛道二）
+# 多变量时间序列预测
 
 100 维变量，输入过去 96 步，分别预测未来 96 / 192 / 336 / 720 步。RevIN + 4 类互补模型（TSMixer / TimeMixer / PatchTST-Strong / iTransformer-Strong）多种子训练，**对每个预测长度独立做 greedy forward-selection 集成**。
 
