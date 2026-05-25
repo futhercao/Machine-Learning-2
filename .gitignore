@@ -19,6 +19,8 @@ data/
 # legacy V1 outputs (we ship V2 only)
 checkpoints/
 results/
+# val materialization (regenerate via dump_val.py)
+results_v2/val_truth/
 
 # log files
 *.log
