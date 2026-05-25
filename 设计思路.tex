@@ -16,7 +16,7 @@
 \vspace{-0.6em}
 
 \section{任务}
-100 维变量，输入过去 96 步，分别预测未来 $\{96,192,336,720\}$ 步。目标：4 个长度平均 MSE $<0.005$（+10）。
+100 维变量，输入过去 96 步，分别预测未来 $\{96,192,336,720\}$ 步。目标：4 个长度平均 MSE $<0.005$。
 
 \section{核心模块：RevIN}
 所有模型外面包一层 \textbf{RevIN}（Reversible Instance Normalization）：前向时对每个样本减均值除标准差，预测后再加回来。解决了"每个样本均值方差差异巨大"的非平稳问题，是过 0.005 这条线的核心。
@@ -62,16 +62,16 @@ AdamW + warmup-cosine（warmup 5\%），MSE loss，batch 64。ckpt 命名 \textt
 \section{结果}
 \vspace{-0.3em}
 \begin{center}\small
-\begin{tabular}{lcc}
+\begin{tabular}{lc}
 \toprule
-指标 & 数值 & 阈值 \\
+指标 & 数值 \\
 \midrule
-4 个长度平均 val MSE & \textbf{0.003632} & 0.005 \\
-官方 demo 集 MSE     & \textbf{0.003030} & 0.005 \\
+4 个长度平均 val MSE & \textbf{0.003632} \\
+官方 demo 集 MSE     & \textbf{0.003030} \\
 \bottomrule
 \end{tabular}
 \end{center}
 \vspace{-0.3em}
-两项均显著低于阈值（裕量 27\%/40\%），预计 +10 加分。提交内容：22 个集成实际用到的 ckpt（slim 自 74）+ 4 个 \texttt{pred\_<L>.npy} + 全部 V2 代码 + \texttt{ensemble\_config.json}。
+提交内容：22 个集成实际用到的 ckpt（slim 自 74）+ 4 个 \texttt{pred\_<L>.npy} + 全部 V2 代码 + \texttt{ensemble\_config.json}。
 
 \end{document}
