@@ -1,0 +1,77 @@
+\documentclass[10pt,a4paper]{ctexart}
+\usepackage[margin=1.4cm]{geometry}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=1.2em,topsep=1pt}
+\setlength{\parskip}{1pt}
+\setlength{\parindent}{0pt}
+\renewcommand{\arraystretch}{0.95}
+\pagestyle{empty}
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{4pt}{2pt}
+\titleformat{\section}{\normalsize\bfseries}{\thesection.}{0.5em}{}
+
+\begin{document}
+\begin{center}\large\bfseries 赛道二：多变量时间序列预测 —— 设计思路\end{center}
+\vspace{-0.6em}
+
+\section{任务}
+100 维变量，输入过去 96 步，分别预测未来 $\{96,192,336,720\}$ 步。目标：4 个长度平均 MSE $<0.005$（+10）。
+
+\section{核心模块：RevIN}
+所有模型外面包一层 \textbf{RevIN}（Reversible Instance Normalization）：前向时对每个样本减均值除标准差，预测后再加回来。解决了"每个样本均值方差差异巨大"的非平稳问题，是过 0.005 这条线的核心。
+
+\section{模型库（四类互补）}
+\vspace{-0.3em}
+\begin{center}\small
+\begin{tabular}{lll}
+\toprule
+模型 & 结构要点 & 擅长 \\
+\midrule
+\texttt{TSMixer}            & 纯 MLP，时间维 \& 通道维交替 mixing            & 短期、平稳信号 \\
+\texttt{TimeMixer}          & 多尺度趋势/季节分解后分层 mixing               & 周期性强的数据 \\
+\texttt{PatchTSTStrong}     & 切 patch + Transformer + channel-independent  & 长 horizon 稳 \\
+\texttt{iTransformerStrong} & 把"变量"当 token，attention 抓变量间关系       & 多变量长程依赖 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{-0.3em}
+每种模型独立训练每个 \texttt{pred\_len}（head 不可共享）$\times$ 3 种子，总计 $\sim$74 个 ckpt。
+
+\section{训练}
+AdamW + warmup-cosine（warmup 5\%），MSE loss，batch 64。ckpt 命名 \texttt{<model>\_pl<L>\_s<seed>.pt}，保留 val 最优。
+
+\section{Per-horizon Greedy Ensemble（核心思路）}
+关键观察：\textbf{不同预测长度的最优模型组合不同}。短 horizon 简单 MLP 已足够；长 horizon 需 Transformer 类压住累计误差。对每个 \texttt{pred\_len}，从全部 ckpt 中做\textbf{贪心前向选择}：每轮加入"能让验证集 MSE 下降最多"的一个 ckpt（取平均后），直到加不动为止，写入 \texttt{ensemble\_config.json}：
+\vspace{-0.3em}
+\begin{center}\small
+\begin{tabular}{cclc}
+\toprule
+\texttt{pred\_len} & \#模型 & 主要组成 & val MSE \\
+\midrule
+96  & 6 & itransformer\_strong×3 + tsmixer×2 + patchtst×1                  & 0.00300 \\
+192 & 8 & itransformer×3 + tsmixer×3 + patchtst×2 + timemixer×1            & 0.00354 \\
+336 & 5 & itransformer×2 + timemixer + patchtst + tsmixer                  & 0.00382 \\
+720 & 3 & itransformer×2 + timemixer×1                                      & 0.00416 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{-0.3em}
+\texttt{predict\_v2.py} 按这张选人表加载对应 ckpt 取平均，输出 4 个 \texttt{pred\_<L>.npy}。
+
+\section{结果}
+\vspace{-0.3em}
+\begin{center}\small
+\begin{tabular}{lcc}
+\toprule
+指标 & 数值 & 阈值 \\
+\midrule
+4 个长度平均 val MSE & \textbf{0.003632} & 0.005 \\
+官方 demo 集 MSE     & \textbf{0.003030} & 0.005 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{-0.3em}
+两项均显著低于阈值（裕量 27\%/40\%），预计 +10 加分。提交内容：22 个集成实际用到的 ckpt（slim 自 74）+ 4 个 \texttt{pred\_<L>.npy} + 全部 V2 代码 + \texttt{ensemble\_config.json}。
+
+\end{document}

@@ -24,5 +24,11 @@ results/
 *.log
 logs/
 
+# latex build artifacts
+*.aux
+*.out
+*.toc
+*.synctex.gz
+
 # untracked V2 ckpts that were trimmed (only the 22 used ones live in git)
 # (no further whitelist needed — the 22 we keep are explicitly committed)
